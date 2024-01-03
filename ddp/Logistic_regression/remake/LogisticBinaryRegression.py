@@ -90,5 +90,5 @@ class LogisticBinaryRegression():
     def _Q_function(self, x):
         return 0.5 * scipy.special.erfc(x / (2**0.5))
 
-    def _norm(self, x):
-        return math.sqrt(sum(x))
+    def _norm(self, values):
+        return math.sqrt(sum(x**2 for x in values))
