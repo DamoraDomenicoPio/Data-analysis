@@ -7,7 +7,7 @@ from SGD import SGD
 # l.plot_results()
 
 ### SGD ###
-s = SGD(nMC=100000, m=[0.5, 0.5], step_stop=10)
+s = SGD(nMC=100000, m=[0.5, 0.5], step_stop=10, decay=True, learning_rate=10)
 s.run()
 s.plot_costs()
 s.test_beta()

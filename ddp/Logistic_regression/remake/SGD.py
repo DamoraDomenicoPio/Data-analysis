@@ -22,11 +22,15 @@ class SGD():
 
     def run(self):
         stop = 0
-        beta =[random.random()] + [0] * len(self._m)
+        beta = list(range(len(self._m) + 1))
+        for i in range(len(beta)):
+            beta[i] = (beta[i]-0.5)*5
+        # beta =[random.random()] + [0] * len(self._m)
+        learning_rate = self._learning_rate
         for i in range(self._nMC):
             y, x = self._new_sample()
             grad = self._calculate_gradient(y, x, beta)
-            beta = self._update_beta(beta, grad)
+            beta = self._update_beta(beta, grad, learning_rate)
             self._J[i] = self._calculate_J(i, y, x, beta)
             self._Q[i] = math.log(1 + math.exp(-y*self._dot_product(x, beta)))
             #self._MSE[i] = self._calculate_MSE(beta)
@@ -37,6 +41,8 @@ class SGD():
                     break
             else:
                 stop = 0
+            if self._decay:
+                learning_rate = self._learning_rate/(i+1)
         self._beta = beta
 
     def plot_costs(self):
@@ -105,6 +111,7 @@ class SGD():
             # Faccio questo solo per un motivo computazionale, altrimenti avrei dovuto salvarmi i costi a ogni iterazione
             # e calcolare la media ogni volta sui costi -> è inefficente fra
             actual_J = (actual_J + past_J)/(run+1)
+            
             return actual_J
         else:
             return actual_J
@@ -116,9 +123,9 @@ class SGD():
             grad[i] = -y*x[i]*const
         return grad
 
-    def _update_beta(self, beta, grad):
+    def _update_beta(self, beta, grad, learning_rate):
         for i in range(len(beta)):
-            beta[i] = beta[i] - self._learning_rate*grad[i]
+            beta[i] = beta[i] - learning_rate*grad[i]
         return beta
 
     def _new_sample(self):
