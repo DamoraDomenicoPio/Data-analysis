@@ -97,4 +97,4 @@ class sgd():
 obj = sgd()
 b0s, b1s, Js = obj.sgd(False)
 obj.plot_results(b0s, b1s, Js)
-
+print("I plot sono salvati come immagini nella cartella di lavoro")
