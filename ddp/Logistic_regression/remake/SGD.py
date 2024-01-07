@@ -22,19 +22,25 @@ class SGD():
 
     def run(self):
         stop = 0
-        beta = list(range(len(self._m) + 1))
-        for i in range(len(beta)):
-            beta[i] = (beta[i]-0.5)*5
-        # beta =[random.random()] + [0] * len(self._m)
+        #beta = list(range(len(self._m) + 1))
+        x_J = list(range(self._nMC))
+        y_J = list(range(self._nMC))
+        # for i in range(len(beta)):
+        #     beta[i] = random.random()
+        beta =[random.random()] + [0] * len(self._m)
         learning_rate = self._learning_rate
         for i in range(self._nMC):
             y, x = self._new_sample()
+            x_J[i] = x
+            y_J[i] = y
             grad = self._calculate_gradient(y, x, beta)
+            
             beta = self._update_beta(beta, grad, learning_rate)
-            self._J[i] = self._calculate_J(i, y, x, beta)
+            #self._J[i] = self._calculate_J(i, y, x, beta)
+            self._J[i] = self._calculate_J(i, y_J, x_J, beta)
             self._Q[i] = math.log(1 + math.exp(-y*self._dot_product(x, beta)))
             #self._MSE[i] = self._calculate_MSE(beta)
-            if i!=0 and (abs(self._J[i]-self._J[i-1])<=0.000001):
+            if i!=0 and (abs(self._J[i]-self._J[i-1])<=0.00001):
                 stop = stop+1
                 if stop >= self._step_stop:
                     print("Stop at iteretion number", i)
@@ -44,6 +50,7 @@ class SGD():
             if self._decay:
                 learning_rate = self._learning_rate/(i+1)
         self._beta = beta
+        
 
     def plot_costs(self):
         plt.plot(list(range(self._nMC)), self._J, label="J")
@@ -98,23 +105,32 @@ class SGD():
         x1 = [point[1] for point in points]
         plt.scatter(x0, x1, color=color, label=label)
         plt.legend()
-    
-    def _calculate_J(self, run, y, x, beta):
-        actual_J = math.log(1 + math.exp(-y*self._dot_product(x, beta)))
-        if run != 0:
-            # In self._J[run-1] ho la media aritmetica dei costi fino a run-1.
-            # Se moltiplico la media per run, ottengo la somma dei logaritmi delle iterazioni passate
-            past_J = self._J[run-1]*run
-            # Il costo attuali è pari alla media aritmetica della somma dei logaritmi,
-            # dove la somma dei logaritmi è pari alla somma dei logaritmi delle iterazioni passate
-            # più il logaritmo attuale.
-            # Faccio questo solo per un motivo computazionale, altrimenti avrei dovuto salvarmi i costi a ogni iterazione
-            # e calcolare la media ogni volta sui costi -> è inefficente fra
-            actual_J = (actual_J + past_J)/(run+1)
+
+
+    def _calculate_J(self, run, y_J, x_J, beta):
+        values = 0
+        
+        for i in range(run+1):
+            values = values + math.log(1 + math.exp(-y_J[i]*self._dot_product(x_J[i], beta)))
+        return values/(run+1)
+
+
+    # def _calculate_J(self, run, y, x, beta):
+    #     actual_J = math.log(1 + math.exp(-y*self._dot_product(x, beta)))
+    #     if run != 0:
+    #         # In self._J[run-1] ho la media aritmetica dei costi fino a run-1.
+    #         # Se moltiplico la media per run, ottengo la somma dei logaritmi delle iterazioni passate
+    #         past_J = self._J[run-1]*run
+    #         # Il costo attuali è pari alla media aritmetica della somma dei logaritmi,
+    #         # dove la somma dei logaritmi è pari alla somma dei logaritmi delle iterazioni passate
+    #         # più il logaritmo attuale.
+    #         # Faccio questo solo per un motivo computazionale, altrimenti avrei dovuto salvarmi i costi a ogni iterazione
+    #         # e calcolare la media ogni volta sui costi -> è inefficente fra
+    #         actual_J = (actual_J + past_J)/(run+1)
             
-            return actual_J
-        else:
-            return actual_J
+    #         return actual_J
+    #     else:
+    #         return actual_J
 
     def _calculate_gradient(self, y, x, beta):
         const = 1/(1+math.exp(y*self._dot_product(x, beta)))
