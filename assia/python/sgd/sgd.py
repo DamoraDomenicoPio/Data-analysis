@@ -73,14 +73,14 @@ class sgd():
     def _loss_grad(self, x0, x1, label, b0, b1): 
         '''Fa il gradiente della loss su un campione'''
         exponent = label*x0*b0 + label*x1*b1
-        factor = -label/(math.exp(exponent)+1)
+        factor = -label/(np.exp(exponent)+1)
         grad0 = factor*x0
         grad1 = factor*x1
         return [grad0, grad1]
     
     def _loss(self, x0, x1, label, b0, b1): 
         exponent = label*x0*b0 + label*x1*b1  # y*x^T*b
-        loss = np.log(1+math.exp(-1*exponent))
+        loss = np.log(1+np.exp(-1*exponent))
         return loss
 
 
@@ -95,6 +95,6 @@ class sgd():
         return J
 
 obj = sgd()
-b0s, b1s, Js = obj.sgd(False)
+b0s, b1s, Js = obj.sgd(True)
 obj.plot_results(b0s, b1s, Js)
 print("I plot sono salvati come immagini nella cartella di lavoro")
